@@ -1,0 +1,35 @@
+!/bin/bash
+if [ $# -ne 2 ]
+then
+    echo "Usage: $0 <filename> <num_chars_to_replace>"
+    exit 1
+fi
+
+filename="$1"
+num_chars_to_replace="$2"
+
+# Check if the file exists
+if [ ! -f "$filename" ]
+then
+    echo "File $filename not found"
+    exit 1
+fi
+
+# Get the length of the file
+file_length=$(wc -c < "$filename")
+
+# Compute the position of the first character to replace
+start_position=$(( file_length - num_chars_to_replace ))
+# Create a temporary file to hold the modified content
+temp_file=$(mktemp)
+
+# Copy the content of the original file up to the start position to the temp file
+head -c "$start_position" "$filename" > "$temp_file"
+
+# Append the replacement string to the temp file
+printf '%0.s0' $(seq 1 "$num_chars_to_replace") >> "$temp_file"
+
+# Replace the original file with the temp file
+mv "$temp_file" "$filename"
+
+sudo chmod 777 "$filename"
